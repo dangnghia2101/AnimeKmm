@@ -17,7 +17,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import presentation.AnimeComponent
+import presentation.components.AnimeComponent
 import presentation.components.HomeScreenLoading
 import presentation.detail.AnimeDetailsScreen
 
@@ -31,7 +31,7 @@ internal class HomeScreen: Screen, KoinComponent{
 
         Box(modifier = Modifier.fillMaxSize()){
             LazyColumn (
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                verticalArrangement = Arrangement.spacedBy(14.dp),
             ){
                 item {
                     if(homeScreenUiState.value.loadingTrendingAnime){
@@ -48,7 +48,10 @@ internal class HomeScreen: Screen, KoinComponent{
 
                             Spacer(modifier = Modifier.height(8.dp))
 
-                            LazyRow (horizontalArrangement = Arrangement.spacedBy(10.dp)){
+                            LazyRow (
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                modifier = Modifier.padding(vertical = 10.dp)
+                            ){
                                 items(homeScreenUiState.value.trendingAnime){trendingAnime ->
                                     AnimeComponent(
                                         dataDto = trendingAnime,
@@ -61,10 +64,42 @@ internal class HomeScreen: Screen, KoinComponent{
                         }
                     }
                 }
+
+                item {
+                    if (homeScreenUiState.value.loadingUpcomingAnime){
+                        HomeScreenLoading()
+                    }
+
+                    if (!homeScreenUiState.value.loadingUpcomingAnime){
+                        Column {
+                            Text(
+                                "Upcoming Anime",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            LazyRow( horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                items(homeScreenUiState.value.upcomingAnime){ upcomingAnime ->
+                                    AnimeComponent(
+                                        dataDto = upcomingAnime,
+                                        navigateToAnimeDetailsScreen = {
+                                            navigator.push(AnimeDetailsScreen(dataDto = it))
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            Text(text="nghia",  modifier = Modifier.align(
-                Alignment.Center,
-            ))
+
+            if (!homeScreenUiState.value.loadingUpcomingAnime && homeScreenUiState.value.errorMessageUpcomingAnime != null) {
+                Text(
+                    text = homeScreenUiState.value.errorMessageTrendingAnime ?: "---",
+                    )
+            }
         }
     }
 }
